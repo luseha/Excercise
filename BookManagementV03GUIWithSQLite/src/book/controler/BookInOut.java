@@ -1,8 +1,7 @@
 package book.controler;
 
-import book.model.DataHelper;
 
-public class BookInOut {
+public class BookInOut extends BookManagementBaseClass {
 
 	private String userID;
 	private String UserName;
@@ -57,23 +56,5 @@ public class BookInOut {
 	
 	public void setInOutDate(String inOutDate) {
 		this.inOutDate = inOutDate;
-	}
-	
-	DataHelper dataHelper = new DataHelper();
-	
-	public void incomingInOutInfo(BookInOut bookInOut) {
-		dataHelper.insertData(bookInOut);
-	}
-	
-	public void outgoingInOutInfo(BookInOut bookInOut) {
-		dataHelper.insertData(bookInOut);
-	}
-	
-	public void selectInOutInfo(BookInOut bookInOut) {
-		dataHelper.selectData(bookInOut);
-	}
-	
-	public void selectInOutAllInfo(BookInOut bookInOut) {
-		dataHelper.selectAllData(bookInOut);
 	}
 }

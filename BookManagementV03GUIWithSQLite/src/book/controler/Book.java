@@ -1,8 +1,7 @@
 package book.controler;
 
-import book.model.DataHelper;
 
-public class Book {
+public class Book extends BookManagementBaseClass {
 
 	private String bookID; //책ID
 	private String bookTitle; //제목
@@ -114,27 +113,5 @@ public class Book {
 	 */
 	public void setBookISBN(String bookISBN) {
 		this.bookISBN = bookISBN;
-	}
-	
-	DataHelper dataHelper = new DataHelper();
-	
-	public void insertBookInfo(Book book) {
-		dataHelper.insertData(book);
-	}
-	
-	public void selectBookInfo(Book book) {
-		dataHelper.selectData(book);
-	}
-	
-	public void selectBookAllInfo(Book book) {
-		dataHelper.selectAllData(book);
-	}
-	
-	public void deleteBookInfo(Book book) {
-		dataHelper.deleteData(book);
-	}
-	
-	public void updateBookInfo(Book book, Book updatedbook) {
-		dataHelper.updateData(book, updatedbook);
 	}
 }

@@ -12,7 +12,7 @@ public class BookObject {
 		
 	}
 	
-	//삭제
+	//삭제 
 	public void deleteData() {
 		
 	}

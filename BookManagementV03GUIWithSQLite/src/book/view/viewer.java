@@ -1,9 +1,14 @@
 package book.view;
 
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,14 +27,11 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
+import book.controler.Book;
+import book.controler.BookInOut;
+import book.controler.User;
 import book.model.DataPack;
 import book.model.DatabaseAccessHelper;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import javax.swing.UIManager;
-import java.awt.Color;
 
 public class viewer {
 
@@ -108,6 +110,75 @@ public class viewer {
 		String[] bookInOutTableColName = {"사용자ID","사용자성명","도서ID","도서제목","상태","일자"};
 		DefaultTableModel bookInOutTableModel = new DefaultTableModel(bookInOutTableColName, 0);
 		
+		JPanel userInfoSelect = new JPanel();
+		userInfoSelect.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		userInfoSelect.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(userInfoSelect);
+		userInfoSelect.setLayout(null);
+		
+		userInfoTable = new JTable(userInfoTableModel);
+		//userInfoTable.setToolTipText("");
+		userInfoTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		userInfoTable.setBounds(10, 50, 410, 155);
+		
+
+		
+		JLabel lblNewLabel_6 = new JLabel("사용자 정보 조회");
+		lblNewLabel_6.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		lblNewLabel_6.setBounds(0, 0, 434, 15);
+		userInfoSelect.add(lblNewLabel_6);
+		
+		JScrollPane userInfoScrollPane = new JScrollPane(userInfoTable);
+		userInfoScrollPane.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		userInfoScrollPane.setBounds(10,50,410,155);
+		userInfoSelect.add(userInfoScrollPane);
+		
+		userInfoSelectID = new JTextField();
+		userInfoSelectID.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		userInfoSelectID.setBounds(62, 19, 116, 21);
+		userInfoSelect.add(userInfoSelectID);
+		userInfoSelectID.setColumns(10);
+		
+		JLabel lblNewLabel_15 = new JLabel("ID");
+		lblNewLabel_15.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		lblNewLabel_15.setBounds(10, 25, 57, 15);
+		userInfoSelect.add(lblNewLabel_15);
+		
+		JButton btnNewButton = new JButton("조회");
+		btnNewButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String queryString = "	SELECT	UserID,"
+									+ "			UserName,"
+									+ "			UserPhoneNum "
+									+ "	FROM 	UserInfo"
+									+ "	WHERE	UserID = ?";
+				
+				ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+				dataPack.add(new DataPack(1, userInfoSelectID.getText()));
+				User user = new User();
+				user.selectData(queryString, userInfoTableModel, dataPack);
+			}
+		});
+		btnNewButton.setBounds(0, 215, 97, 23);
+		userInfoSelect.add(btnNewButton);
+		
+		JButton btnNewButton_1 = new JButton("전체조회");
+		btnNewButton_1.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+					
+				String queryString = "	SELECT	UserID,"
+									+ "			UserName,"
+									+ "			UserPhoneNum "
+									+ "	FROM 	UserInfo";
+				User user = new User();
+				user.selectData(queryString, userInfoTableModel);
+			}
+		});
+		btnNewButton_1.setBounds(106, 215, 97, 23);
+		userInfoSelect.add(btnNewButton_1);
+		
 		JPanel userInfoInsert = new JPanel();
 		userInfoInsert.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
 		userInfoInsert.setBounds(0, 0, 434, 238);
@@ -161,164 +232,30 @@ public class viewer {
 		btnNewButton_2.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				String queryString;
-
-				try {
-					queryString = "	INSERT INTO UserInfo"
-								+ "	("
-								+ "		UserID,"
-								+ "		UserName,"
-								+ " 	UserPhoneNum"
-								+ " )"
-								+ " VALUES"
-								+ " ("
-								+ "		?,"
-								+ "		?,"
-								+ "		?"
-								+ " );";
+					String queryString = "INSERT INTO UserInfo"
+										+ "	("
+										+ "		UserID,"
+										+ "		UserName,"
+										+ "		UserPhoneNum"
+										+ " )"
+										+ " VALUES"
+										+ " ("
+										+ "		?,"
+										+ "		?,"
+										+ "		?"
+										+ " );";
 					
 					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
 					dataPack.add(new DataPack(1, userInfoInsertID.getText()));
 					dataPack.add(new DataPack(2, userInfoInsertName.getText()));
 					dataPack.add(new DataPack(3, userInfoInsertPhoneNum.getText()));
 					
-					databaseAccessHelper.executeNonQuery(queryString, dataPack);
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-//					ex.printStackTrace();
-				} finally {
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-				}
+					User user = new User();
+					user.insertData(queryString, dataPack);
 			}
 		});
 		btnNewButton_2.setBounds(26, 144, 97, 23);
 		userInfoInsert.add(btnNewButton_2);
-		
-		JPanel userInfoSelect = new JPanel();
-		userInfoSelect.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		userInfoSelect.setBounds(0, 0, 434, 238);
-		frame.getContentPane().add(userInfoSelect);
-		userInfoSelect.setLayout(null);
-		
-		userInfoTable = new JTable(userInfoTableModel);
-		//userInfoTable.setToolTipText("");
-		userInfoTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		userInfoTable.setBounds(10, 50, 410, 155);
-		
-
-		
-		JLabel lblNewLabel_6 = new JLabel("사용자 정보 조회");
-		lblNewLabel_6.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		lblNewLabel_6.setBounds(0, 0, 434, 15);
-		userInfoSelect.add(lblNewLabel_6);
-		
-		JScrollPane userInfoScrollPane = new JScrollPane(userInfoTable);
-		userInfoScrollPane.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		userInfoScrollPane.setBounds(10,50,410,155);
-		userInfoSelect.add(userInfoScrollPane);
-		
-		userInfoSelectID = new JTextField();
-		userInfoSelectID.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		userInfoSelectID.setBounds(62, 19, 116, 21);
-		userInfoSelect.add(userInfoSelectID);
-		userInfoSelectID.setColumns(10);
-		
-		JLabel lblNewLabel_15 = new JLabel("ID");
-		lblNewLabel_15.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		lblNewLabel_15.setBounds(10, 25, 57, 15);
-		userInfoSelect.add(lblNewLabel_15);
-		
-		JButton btnNewButton = new JButton("조회");
-		btnNewButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
-				
-				try {
-					
-					queryString = "	SELECT	UserID,"
-								+ "			UserName,"
-								+ "			UserPhoneNum "
-								+ "	FROM 	UserInfo"
-								+ "	WHERE	UserID = ?";
-				
-					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
-					dataPack.add(new DataPack(1, userInfoSelectID.getText()));
-					resultSet = databaseAccessHelper.executeQuery(queryString, dataPack);
-					userInfoTableModel.setNumRows(0);
-					while(resultSet.next() ) {
-						userInfoTableModel.addRow(new Object[]{
-													resultSet.getString("UserID"), 
-													resultSet.getString("UserName"),
-													resultSet.getString("UserPhoneNum")
-												 });
-					}
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-				}
-			}
-		});
-		btnNewButton.setBounds(0, 215, 97, 23);
-		userInfoSelect.add(btnNewButton);
-		
-		JButton btnNewButton_1 = new JButton("전체조회");
-		btnNewButton_1.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
-				
-				try {
-					
-					queryString = "	SELECT	UserID,"
-								+ "			UserName,"
-								+ "			UserPhoneNum "
-								+ "	FROM 	UserInfo";
-				
-					resultSet = databaseAccessHelper.executeQuery(queryString);
-					userInfoTableModel.setNumRows(0);
-					while(resultSet.next() ) {
-						userInfoTableModel.addRow(new Object[]{
-													resultSet.getString("UserID"), 
-													resultSet.getString("UserName"),
-													resultSet.getString("UserPhoneNum")
-												 });
-					}
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
-			}
-		});
-		btnNewButton_1.setBounds(106, 215, 97, 23);
-		userInfoSelect.add(btnNewButton_1);
 		
 		JPanel bookInfoUpdate = new JPanel();
 		bookInfoUpdate.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
@@ -439,35 +376,15 @@ public class viewer {
 		userInfoUpdateID.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
-				
-				try {
-					queryString = "SELECT UserName,"
-								+ " 	  UserPhoneNum"
-								+ " FROM UserInfo"
-								+ " WHERE UserID = ?";
+				String queryString = "SELECT UserName,"
+									+ " 	  UserPhoneNum"
+									+ " FROM UserInfo"
+									+ " WHERE UserID = ?";
 					
-					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
-					dataPack.add(new DataPack(1, userInfoUpdateID.getText()));
-					resultSet = databaseAccessHelper.executeQuery(queryString, dataPack);
-					userInfoUpdateName.setText(resultSet.getString("UserName"));
-					userInfoUpdatePhoneNum.setText(resultSet.getString("UserPhoneNum"));
-				} catch (Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-				}
+				ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+				dataPack.add(new DataPack(1, userInfoUpdateID.getText()));
+				User user = new User();
+				user.selectData(queryString, userInfoTableModel);
 			}
 		});
 		userInfoUpdateID.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
@@ -615,28 +532,24 @@ public class viewer {
 		JButton btnNewButton_7_4 = new JButton("반입등록");
 		btnNewButton_7_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				String queryString;
-
-				try {
-					queryString = "	INSERT INTO BookInOut"
-								+ "	("
-								+ "		UserID,"
-								+ "		UserName,"
-								+ " 	BookID,"
-								+ " 	BookTitle,"
-								+ " 	InOutType,"
-								+ " 	InOutDate"
-								+ " )"
-								+ " VALUES"
-								+ " ("
-								+ "		?,"
-								+ "		?,"
-								+ "		?,"
-								+ "		?,"
-								+ "		?,"
-								+ "		?"
-								+ " );";
+				String queryString = "	INSERT INTO BookInOut"
+									+ "	("
+									+ "		UserID,"
+									+ "		UserName,"
+									+ " 	BookID,"
+									+ " 	BookTitle,"
+									+ " 	InOutType,"
+									+ " 	InOutDate"
+									+ " )"
+									+ " VALUES"
+									+ " ("
+									+ "		?,"
+									+ "		?,"
+									+ "		?,"
+									+ "		?,"
+									+ "		?,"
+									+ "		?"
+									+ " );";
 					
 					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
 					dataPack.add(new DataPack(1, bookInInsertUserID.getText()));
@@ -646,15 +559,8 @@ public class viewer {
 					dataPack.add(new DataPack(5, "I"));
 					dataPack.add(new DataPack(6, bookInInsertDate.getText()));
 					
-					databaseAccessHelper.executeNonQuery(queryString, dataPack);
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (databaseAccessHelper != null) {
-						statMessage.setText("저장이 완료되었습니다");
-						databaseAccessHelper.Close();
-					}
-				}
+					BookInOut bookInOut = new BookInOut();
+					bookInOut.insertData(queryString, dataPack);
 			}
 		});
 		btnNewButton_7_4.setBounds(114, 176, 97, 23);
@@ -664,37 +570,15 @@ public class viewer {
 		bookInInsertUserID.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
+				String queryString = "	SELECT	UserName"
+									+ "	FROM 	UserInfo"
+									+ "	WHERE	UserID = ?";
 				
-				try {
-					queryString = "	SELECT	UserName"
-								+ "	FROM 	UserInfo"
-								+ "	WHERE	UserID = ?";
-				
-					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
-					dataPack.add(new DataPack(1, bookInInsertUserID.getText()));
+				ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+				dataPack.add(new DataPack(1, bookInInsertUserID.getText()));
 					
-					resultSet = databaseAccessHelper.executeQuery(queryString, dataPack);
-					
-					bookInInsertUserName.setText(resultSet.getString("UserName"));
-				
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
-				
+				User user = new User();
+				user.selectData(queryString, userInfoTableModel, dataPack);
 			}
 		});
 		bookInInsertUserID.setBounds(114, 25, 85, 21);
@@ -711,36 +595,14 @@ public class viewer {
 		bookInInsertBookID.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
+				String queryString = " SELECT BookTitle"
+									+ "	FROM  BookInfo"
+									+ "	WHERE BookID = ?";
 				
-				try {
-					queryString = "	SELECT	BookTitle"
-								+ "	FROM 	BookInfo"
-								+ "	WHERE	BookID = ?";
-				
-					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
-					dataPack.add(new DataPack(1, bookInInsertBookID.getText()));
-					
-					resultSet = databaseAccessHelper.executeQuery(queryString, dataPack);
-					
-					bookInInsertBookTitle.setText(resultSet.getString("BookTitle"));
-				
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
+				ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+				dataPack.add(new DataPack(1, bookInInsertBookID.getText()));
+				Book book = new Book();
+				book.selectData(queryString, bookInfoTableModel, dataPack);
 			}
 		});
 		bookInInsertBookID.setColumns(10);
@@ -788,37 +650,15 @@ public class viewer {
 		bookOutInsertUserID.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
+				String queryString = " SELECT UserName"
+									+ "	FROM UserInfo"
+									+ "	WHERE UserID = ?";
 				
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
+				ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+				dataPack.add(new DataPack(1, bookOutInsertUserID.getText()));
 				
-				try {
-					queryString = "	SELECT	UserName"
-								+ "	FROM 	UserInfo"
-								+ "	WHERE	UserID = ?";
-				
-					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
-					dataPack.add(new DataPack(1, bookOutInsertUserID.getText()));
-					
-					resultSet = databaseAccessHelper.executeQuery(queryString, dataPack);
-					
-					bookOutInsertUserName.setText(resultSet.getString("UserName"));
-				
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
+				User user = new User();
+				user.selectData(queryString, userInfoTableModel, dataPack);
 			}
 		});
 		bookOutInsertUserID.setColumns(10);
@@ -855,28 +695,24 @@ public class viewer {
 		JButton btnNewButton_7_4_1 = new JButton("반출등록");
 		btnNewButton_7_4_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				String queryString;
-
-				try {
-					queryString = "	INSERT INTO BookInOut"
-								+ "	("
-								+ "		UserID,"
-								+ "		UserName,"
-								+ " 	BookID,"
-								+ " 	BookTitle,"
-								+ " 	InOutType,"
-								+ " 	InOutDate"
-								+ " )"
-								+ " VALUES"
-								+ " ("
-								+ "		?,"
-								+ "		?,"
-								+ "		?,"
-								+ "		?,"
-								+ "		?,"
-								+ "		?"
-								+ " );";
+				String queryString = " INSERT INTO BookInOut"
+									+ "	("
+									+ "		UserID,"
+									+ "		UserName,"
+									+ " 	BookID,"
+									+ " 	BookTitle,"
+									+ " 	InOutType,"
+									+ " 	InOutDate"
+									+ " )"
+									+ " VALUES"
+									+ " ("
+									+ "		?,"
+									+ "		?,"
+									+ "		?,"
+									+ "		?,"
+									+ "		?,"
+									+ "		?"
+									+ " );";
 					
 					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
 					dataPack.add(new DataPack(1, bookOutInsertUserID.getText()));
@@ -886,14 +722,8 @@ public class viewer {
 					dataPack.add(new DataPack(5, "O"));
 					dataPack.add(new DataPack(6, bookOutInsertDate.getText()));
 					
-					databaseAccessHelper.executeNonQuery(queryString, dataPack);
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-				}
+					BookInOut bookInOut = new BookInOut();
+					bookInOut.insertData(queryString, dataPack);
 			}
 		});
 		btnNewButton_7_4_1.setBounds(109, 180, 97, 23);
@@ -909,44 +739,20 @@ public class viewer {
 		bookOutInsertBookID.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
+				String queryString = " SELECT BookTitle"
+									+ "	FROM  BookInfo"
+									+ "	WHERE BookID = ?";
 				
-				try {
-					queryString = "	SELECT	BookTitle"
-								+ "	FROM 	BookInfo"
-								+ "	WHERE	BookID = ?";
+				ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+				dataPack.add(new DataPack(1, bookOutInsertBookID.getText()));
 				
-					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
-					dataPack.add(new DataPack(1, bookOutInsertBookID.getText()));
-					
-					resultSet = databaseAccessHelper.executeQuery(queryString, dataPack);
-					
-					bookOutInsertBookTitle.setText(resultSet.getString("BookTitle"));
-				
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
-				
+				Book book = new Book();
+				book.selectData(queryString, bookInfoTableModel, dataPack);
 			}
 		});
 		bookOutInsertBookID.setColumns(10);
 		bookOutInsertBookID.setBounds(109, 91, 85, 21);
 		bookOutInsert.add(bookOutInsertBookID);
-		
-
 		
 		bookInOutTable = new JTable(bookInOutTableModel);
 		bookInOutTable.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
@@ -960,46 +766,16 @@ public class viewer {
 		JButton btnNewButton_6_1 = new JButton("전체 조회");
 		btnNewButton_6_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
-				
-				try {
-					
-					queryString = "	SELECT	UserID,"
-								+ "			UserName,"
-								+ "			BookID,"
-								+ "			BookTitle,"
-								+ "			InOutType,"
-								+ "			InOutDate"
-								+ "	FROM 	BookInOut";
-				
-					resultSet = databaseAccessHelper.executeQuery(queryString);
-					bookInOutTableModel.setNumRows(0);
-					while(resultSet.next() ) {
-						bookInOutTableModel.addRow(new Object[]{
-													resultSet.getString("UserID"), 
-													resultSet.getString("UserName"),
-													resultSet.getString("BookID"),
-													resultSet.getString("BookTitle"),
-													resultSet.getString("InOutType"),
-													resultSet.getString("InOutDate")
-												 });
-					}
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
+				String queryString = "SELECT UserID,"
+									+ "	UserName,"
+									+ "	BookID,"
+									+ "	BookTitle,"
+									+ "	InOutType,"
+									+ "	InOutDate"
+									+ "	FROM BookInOut";
+	
+				BookInOut bookInOut = new BookInOut();
+				bookInOut.selectData(queryString, bookInOutTableModel);	
 			}
 		});
 		btnNewButton_6_1.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
@@ -1009,49 +785,18 @@ public class viewer {
 		JButton btnNewButton_5_1 = new JButton("조회");
 		btnNewButton_5_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
-				
-				try {
-					queryString = "	SELECT	UserID,"
-								+ "			UserName,"
-								+ "			BookID,"
-								+ "			BookTitle,"
-								+ "			InOutType,"
-								+ "			InOutDate"
-								+ "	FROM 	BookInOut"
-								+ "	WHERE	UserID = ?";
-				
-					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
-					dataPack.add(new DataPack(1, bookInOutSelectID.getText()));
-					
-					resultSet = databaseAccessHelper.executeQuery(queryString, dataPack);
-					bookInOutTableModel.setNumRows(0);
-					while(resultSet.next() ) {
-						bookInOutTableModel.addRow(new Object[]{
-													resultSet.getString("UserID"), 
-													resultSet.getString("UserName"),
-													resultSet.getString("BookID"),
-													resultSet.getString("BookTitle"),
-													resultSet.getString("InOutType"),
-													resultSet.getString("InOutDate")
-												 });
-					}
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
+				String queryString = "	SELECT	UserID,"
+									+ "	UserName,"
+									+ "	BookID,"
+									+ "	BookTitle,"
+									+ "	InOutType,"
+									+ "	InOutDate"
+									+ "	FROM BookInOut"
+									+ " WHERE UserID = ? ";
+				ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+				dataPack.add(new DataPack(1, bookInOutSelectID.getText()));
+				BookInOut bookInOut = new BookInOut();
+				bookInOut.selectData(queryString, bookInfoTableModel, dataPack);
 			}
 		});
 		btnNewButton_5_1.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
@@ -1085,43 +830,17 @@ public class viewer {
 		btnNewButton_5.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
 		btnNewButton_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
+				String queryString = " SELECT BookID,"
+									+ "	      BookTitle,"
+									+ "		  BookISBN "
+									+ "	FROM  BookInfo"
+									+ "	WHERE BookID = ?";
 				
-				try {
+				ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+				dataPack.add(new DataPack(1, bookInfoSelectID.getText()));
 					
-					queryString = "	SELECT	BookID,"
-								+ "			BookTitle,"
-								+ "			BookISBN "
-								+ "	FROM 	BookInfo"
-								+ "	WHERE	BookID = ?";
-				
-					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
-					dataPack.add(new DataPack(1, bookInfoSelectID.getText()));
-					resultSet = databaseAccessHelper.executeQuery(queryString, dataPack);
-					bookInfoTableModel.setNumRows(0);
-					while(resultSet.next() ) {
-						bookInfoTableModel.addRow(new Object[]{
-													resultSet.getString("BookID"), 
-													resultSet.getString("BookTitle"),
-													resultSet.getString("BookISBN")
-												 });
-					}
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-				}
+				Book book = new Book();
+				book.selectData(queryString, bookInfoTableModel, dataPack);
 			}
 		});
 		btnNewButton_5.setBounds(0, 215, 97, 23);
@@ -1131,40 +850,12 @@ public class viewer {
 		btnNewButton_6.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
 		btnNewButton_6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				ResultSet resultSet = null;
-				String queryString;
-				
-				try {
-					
-					queryString = "	SELECT	BookID,"
-								+ "			BookTitle,"
-								+ "			BookISBN "
-								+ "	FROM 	BookInfo";
-				
-					resultSet = databaseAccessHelper.executeQuery(queryString);
-					bookInfoTableModel.setNumRows(0);
-					while(resultSet.next() ) {
-						bookInfoTableModel.addRow(new Object[]{
-													resultSet.getString("BookID"), 
-													resultSet.getString("BookTitle"),
-													resultSet.getString("BookISBN")
-												 });
-					}
-				} catch(Exception ex) {
-					System.out.println(ex.getMessage());
-				} finally {
-					if (databaseAccessHelper != null) {
-						databaseAccessHelper.Close();
-					}
-					if (resultSet != null) {
-						try {
-							resultSet.close();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
+				String queryString = "SELECT BookID,"
+									+ "	 	 BookTitle,"
+									+ "		 BookISBN "
+									+ "	FROM BookInfo";
+				Book book = new Book();
+				book.selectData(queryString, bookInfoTableModel);
 			}
 		});
 		btnNewButton_6.setBounds(114, 215, 97, 23);
@@ -1202,9 +893,6 @@ public class viewer {
 		JButton btnNewButton_3_1 = new JButton("삭제");
 		btnNewButton_3_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				String queryString;
-				
 				String[] answer = {"확인", "취소"};
 				int returnAnswer = JOptionPane.showOptionDialog(
 																	null, //Component parentComponent : 어떤 프레임에서 나타낼지 정함
@@ -1219,24 +907,16 @@ public class viewer {
 				int convertAnswer = returnAnswer + 1;
 				
 				if (convertAnswer == 1) {
-					try {
-						queryString = "	DELETE "
-									+ " FROM 	BookInfo"
-									+ "	WHERE	BookID = ?;";
+					String queryString = "DELETE "
+										+ " FROM BookInfo"
+										+ "	WHERE BookID = ?;";
 						
-						ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
-						dataPack.add(new DataPack(1, bookInfoDeleteID.getText()));
+					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+					dataPack.add(new DataPack(1, bookInfoDeleteID.getText()));
 						
-						databaseAccessHelper.executeNonQuery(queryString, dataPack);
-					} catch(Exception ex) {
-						System.out.println(ex.getMessage());
-					} finally {
-						if (databaseAccessHelper != null) {
-							databaseAccessHelper.Close();
-						}
-					}
-				}
-				
+					Book book = new Book();
+					book.deleteData(queryString, dataPack);
+				}	
 			}
 		});
 		btnNewButton_3_1.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
@@ -1272,8 +952,6 @@ public class viewer {
 		btnNewButton_3.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
-				String queryString;
 				
 				String[] answer = {"확인", "취소"};
 				int returnAnswer = JOptionPane.showOptionDialog(
@@ -1289,24 +967,16 @@ public class viewer {
 				int convertAnswer = returnAnswer + 1;
 				
 				if (convertAnswer == 1) {
-					try {
-						queryString = "	DELETE "
-									+ " FROM 	UserInfo"
-									+ "	WHERE	UserID = ?;";
+					String queryString = "DELETE "
+										+ " FROM UserInfo"
+										+ "	WHERE UserID = ?;";
 						
-						ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
-						dataPack.add(new DataPack(1, userInfoDeleteID.getText()));
-						
-						databaseAccessHelper.executeNonQuery(queryString, dataPack);
-					} catch(Exception ex) {
-						System.out.println(ex.getMessage());
-					} finally {
-						if (databaseAccessHelper != null) {
-							databaseAccessHelper.Close();
-						}
-					}
-				}
-				
+					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+					dataPack.add(new DataPack(1, userInfoDeleteID.getText()));
+
+					User user = new User();
+					user.deleteData(queryString, dataPack);
+				}	
 			}
 		});
 		btnNewButton_3.setBounds(13, 56, 97, 23);

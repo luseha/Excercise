@@ -12,4 +12,6 @@
     <fullyQualifiedTypeName name="javax.swing.JOptionPane"/>
     <fullyQualifiedTypeName name="book.model.DatabaseAccessHelper"/>
     <fullyQualifiedTypeName name="java.util.ArrayList"/>
+    <fullyQualifiedTypeName name="book.controler.User"/>
+    <fullyQualifiedTypeName name="book.controler.Book"/>
 </qualifiedTypeNameHistroy>
