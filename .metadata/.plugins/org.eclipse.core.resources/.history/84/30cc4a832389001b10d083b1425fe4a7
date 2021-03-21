@@ -1,0 +1,1106 @@
+package book.view;
+
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableModel;
+
+import book.model.DataPack;
+import book.model.DatabaseAccessHelper;
+import java.awt.Component;
+
+public class viewer {
+
+	private JFrame frame;
+	private JTable userInfoTable;
+	private JTextField textField;
+	private JTextField UserInfoInsertID;
+	private JTextField UserInfoInsertName;
+	private JTextField UserInfoInsertPhoneNum;
+	private JTextField UserInfoDeleteID;
+	private JTextField UserInfoUpdateID;
+	private JTextField UserInfoUpdateName;
+	private JTextField UserInfoUpdatePhoneNum;
+	private JTable bookInfoTable;
+	private JTextField BookInfoSelectField;
+	private JTextField bookInsertBookID;
+	private JTextField bookInsertBookTitle;
+	private JTextField bookInsertBookISBN;
+	private JTextField bookInfoUpdateID;
+	private JTextField bookInfoUpdateTitle;
+	private JTextField bookInfoUpdateISBN;
+	private JTable bookInOutTable;
+	private JTextField bookOutInsertUserID;
+	private JTextField bookOutInsertUserName;
+	private JTextField bookOutInsertBookID;
+	private JTextField bookOutInsertBookTitle;
+	private JTextField bookOutInsertDate;
+	private JTable table;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					viewer window = new viewer();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public viewer() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		String[] userInfoTableColName = {"사용자ID", "사용자성명", "사용자전화번호"};
+		DefaultTableModel userInfoTableModel = new DefaultTableModel(userInfoTableColName, 0);
+		
+		String[] bookInfoTableColName = {"도서ID", "도서제목", "도서ISBN"};
+		DefaultTableModel bookInfoTableModel = new DefaultTableModel(bookInfoTableColName, 0);
+		String[] bookInOutTableColName = {"사용자ID", "사용자이름", "도서ID","도서제목","상태","일자"};
+		DefaultTableModel bookInOutTableModel = new DefaultTableModel(bookInOutTableColName, 0);
+		
+		JMenuBar menuBar = new JMenuBar();
+		frame.setJMenuBar(menuBar);
+		
+		JMenu mnNewMenu = new JMenu("파일");
+		menuBar.add(mnNewMenu);
+		
+		JMenuItem mntmNewMenuItem = new JMenuItem("종료");
+		mnNewMenu.add(mntmNewMenuItem);
+		
+		JMenu mnNewMenu_1 = new JMenu("사용자 정보 관리");
+		mnNewMenu_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		});
+		menuBar.add(mnNewMenu_1);
+		frame.getContentPane().setLayout(null);
+		
+		JPanel bookInOutSelect = new JPanel();
+		bookInOutSelect.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(bookInOutSelect);
+		bookInOutSelect.setLayout(null);
+		
+		JLabel lblNewLabel_10 = new JLabel("도서 대여 정보 조회");
+		lblNewLabel_10.setBounds(0, 0, 434, 15);
+		bookInOutSelect.add(lblNewLabel_10);
+		//bookInOutSelect.add(bookInOutTable);
+		
+		JScrollPane bookInOutScrollPane = new JScrollPane(bookInOutTable);
+		bookInOutScrollPane.setBounds(12, 56, 410, 155);
+		bookInOutSelect.add(bookInOutScrollPane);
+		
+		JButton btnNewButton_9 = new JButton("조회");
+		btnNewButton_9.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
+				ResultSet resultSet = null;
+				String queryString;
+				
+				try {
+					queryString = "SELECT UserID,"
+								+ " UserName,"
+								+ " BookID,"
+								+ " BookTitle,"
+								+ " InOutType,"
+								+ " InOutDate"
+								+ " FROM bookInOut";
+				
+					resultSet = databaseAccessHelper.executeQuery(queryString);
+					bookInOutTableModel.setNumRows(0);
+					while(resultSet.next()) {
+						bookInOutTableModel.addRow(new Object[] {
+								resultSet.getString("UserID"),
+								resultSet.getString("UserName"),
+								resultSet.getString("BookID"),
+								resultSet.getString("BookTitle"),
+								resultSet.getString("InOutType"),
+								resultSet.getString("InOutDate")
+						});
+					}
+				} catch(Exception ex) {
+					System.out.println(ex.getMessage());
+				} finally {
+					if (resultSet != null) {
+						try {
+							resultSet.close();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+					}
+					if (databaseAccessHelper != null) {
+						databaseAccessHelper.Close();
+					}
+				}
+			}
+		});
+		btnNewButton_9.setBounds(10, 25, 97, 23);
+		bookInOutSelect.add(btnNewButton_9);
+		
+		table = new JTable();
+		table.setBounds(0, 0, 1, 1);
+		
+		JPanel userInfoSelect = new JPanel();
+		userInfoSelect.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(userInfoSelect);
+		userInfoSelect.setLayout(null);
+		
+		JLabel lblNewLabel_6 = new JLabel("사용자 정보 조회");
+		lblNewLabel_6.setBounds(0, 0, 434, 15);
+		userInfoSelect.add(lblNewLabel_6);
+		
+		userInfoTable = new JTable(userInfoTableModel);
+		userInfoTable.setBounds(10, 50, 410, 155);
+		//userInfoSelect.add(userInfoTable);
+		
+		JScrollPane userInfoScrollPane = new JScrollPane(userInfoTable);
+		userInfoScrollPane.setBounds(10,50,410,155);
+		userInfoSelect.add(userInfoScrollPane);
+		
+		textField = new JTextField();
+		textField.setBounds(50, 22, 116, 21);
+		userInfoSelect.add(textField);
+		textField.setColumns(10);
+		
+		JLabel lblNewLabel_12 = new JLabel("ID");
+		lblNewLabel_12.setBounds(12, 25, 27, 15);
+		userInfoSelect.add(lblNewLabel_12);
+		
+		JButton btnNewButton = new JButton("조회");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
+				ResultSet resultSet = null;
+				String queryString;
+				
+				try {
+					queryString = "SELECT UserID,"
+								+ " UserName,"
+								+ " UserPhoneNum"
+								+ " FROM UserInfo"
+								+ " WHERE UserID = ?";
+				
+					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+					dataPack.add(new DataPack(1, textField.getText()));
+					System.out.println(textField.getText());
+					resultSet = databaseAccessHelper.executeQuery(queryString, dataPack);
+					userInfoTableModel.setNumRows(0);
+					while(resultSet.next()) {
+						userInfoTableModel.addRow(new Object[] {
+								resultSet.getString("UserID"),
+								resultSet.getString("UserName"),
+								resultSet.getString("UserPhoneNum")
+						});
+					}
+				} catch(Exception ex) {
+					System.out.println(ex.getMessage());
+				} finally {
+					if (resultSet != null) {
+						try {
+							resultSet.close();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+					}
+					if (databaseAccessHelper != null) {
+						databaseAccessHelper.Close();
+					}
+				}
+			}
+		});
+		btnNewButton.setBounds(12, 215, 97, 23);
+		userInfoSelect.add(btnNewButton);
+		
+		JButton btnNewButton_1 = new JButton("전체조회");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
+				ResultSet resultSet = null;
+				String queryString;
+				
+				try {
+					queryString = "SELECT UserID,"
+								+ " UserName,"
+								+ " UserPhoneNum"
+								+ " FROM UserInfo";
+					resultSet = databaseAccessHelper.executeQuery(queryString);
+					userInfoTableModel.setNumRows(0);
+					while(resultSet.next()) {
+						userInfoTableModel.addRow(new Object[] {
+								resultSet.getString("UserID"),
+								resultSet.getString("UserName"),
+								resultSet.getString("UserPhoneNum")
+						});
+					}
+				} catch(Exception ex) {
+					System.out.println(ex.getMessage());
+				} finally {
+					if (resultSet != null) {
+						try {
+							resultSet.close();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+					}
+					if (databaseAccessHelper != null) {
+						databaseAccessHelper.Close();
+					}
+				}
+			}
+		});
+		btnNewButton_1.setBounds(121, 215, 97, 23);
+		userInfoSelect.add(btnNewButton_1);
+		
+		bookInOutTable = new JTable(bookInOutTableModel);
+		bookInOutTable.setBounds(0, 0, 1, 1);
+		
+
+
+		
+		JPanel bookOutInsert = new JPanel();
+		bookOutInsert.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(bookOutInsert);
+		bookOutInsert.setLayout(null);
+		
+		JLabel lblNewLabel_11 = new JLabel("도서 반출 등록");
+		lblNewLabel_11.setBounds(0, 0, 434, 15);
+		bookOutInsert.add(lblNewLabel_11);
+		
+		JLabel lblNewLabel_21 = new JLabel("사용자ID");
+		lblNewLabel_21.setBounds(10, 25, 57, 15);
+		bookOutInsert.add(lblNewLabel_21);
+		
+		bookOutInsertUserID = new JTextField();
+		bookOutInsertUserID.setBounds(79, 22, 75, 21);
+		bookOutInsert.add(bookOutInsertUserID);
+		bookOutInsertUserID.setColumns(10);
+		
+		JLabel lblNewLabel_22 = new JLabel("이름");
+		lblNewLabel_22.setBounds(10, 56, 57, 15);
+		bookOutInsert.add(lblNewLabel_22);
+		
+		bookOutInsertUserName = new JTextField();
+		bookOutInsertUserName.setColumns(10);
+		bookOutInsertUserName.setBounds(79, 53, 75, 21);
+		bookOutInsert.add(bookOutInsertUserName);
+		
+		JLabel bookid = new JLabel("도서ID");
+		bookid.setBounds(10, 84, 57, 15);
+		bookOutInsert.add(bookid);
+		
+		bookOutInsertBookID = new JTextField();
+		bookOutInsertBookID.setColumns(10);
+		bookOutInsertBookID.setBounds(79, 81, 75, 21);
+		bookOutInsert.add(bookOutInsertBookID);
+		
+		JLabel lblNewLabel_22_2 = new JLabel("도서제목");
+		lblNewLabel_22_2.setBounds(10, 115, 57, 15);
+		bookOutInsert.add(lblNewLabel_22_2);
+		
+		bookOutInsertBookTitle = new JTextField();
+		bookOutInsertBookTitle.setColumns(10);
+		bookOutInsertBookTitle.setBounds(79, 112, 196, 21);
+		bookOutInsert.add(bookOutInsertBookTitle);
+		
+		JLabel lblNewLabel_22_3 = new JLabel("일자");
+		lblNewLabel_22_3.setBounds(10, 143, 57, 15);
+		bookOutInsert.add(lblNewLabel_22_3);
+		
+		bookOutInsertDate = new JTextField();
+		bookOutInsertDate.setColumns(10);
+		bookOutInsertDate.setBounds(79, 140, 75, 21);
+		bookOutInsert.add(bookOutInsertDate);
+		
+		JButton btnNewButton_8 = new JButton("도서반출등록");
+		btnNewButton_8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
+				String queryString;
+				
+				try {
+					queryString = "INSERT INTO BookInOut"
+								+ " ("
+								+ " UserID, "
+								+ " UserName,"
+								+ " BookID,"
+								+ " BookTitle,"
+								+ " InOutType,"
+								+ " InOutDate"
+								+ " )"
+								+ " VALUES"
+								+ " ("
+								+ " ?,"
+								+ " ?,"
+								+ " ?,"
+								+ " ?,"
+								+ " ?,"
+								+ " ?"
+								+ " );";
+					
+					ArrayList<DataPack> datapack = new ArrayList<DataPack>();
+					datapack.add(new DataPack(1, bookOutInsertUserID.getText()));
+					datapack.add(new DataPack(2, bookOutInsertUserName.getText()));
+					datapack.add(new DataPack(3, bookOutInsertBookID.getText()));
+					datapack.add(new DataPack(4, bookOutInsertBookTitle.getText()));
+					datapack.add(new DataPack(5, "O"));
+					datapack.add(new DataPack(6, bookOutInsertDate.getText()));
+					
+					databaseAccessHelper.executeNonQuery(queryString, datapack);
+				} catch(Exception ex) {
+					System.out.println(ex.getMessage());
+				} finally {
+					if (databaseAccessHelper != null) {
+						databaseAccessHelper.Close();
+					}
+				}
+			}
+		});
+		btnNewButton_8.setBounds(22, 182, 132, 23);
+		bookOutInsert.add(btnNewButton_8);
+		
+		JPanel bookInfoUpdate = new JPanel();
+		bookInfoUpdate.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(bookInfoUpdate);
+		bookInfoUpdate.setLayout(null);
+		
+		JLabel lblNewLabel_2 = new JLabel("도서 정보 수정");
+		lblNewLabel_2.setBounds(0, 0, 434, 15);
+		bookInfoUpdate.add(lblNewLabel_2);
+		
+		bookInfoUpdateID = new JTextField();
+		bookInfoUpdateID.setColumns(10);
+		bookInfoUpdateID.setBounds(81, 25, 116, 21);
+		bookInfoUpdate.add(bookInfoUpdateID);
+		
+		JLabel lblNewLabel_17_1 = new JLabel("ID");
+		lblNewLabel_17_1.setBounds(23, 28, 57, 15);
+		bookInfoUpdate.add(lblNewLabel_17_1);
+		
+		JLabel lblNewLabel_18_1 = new JLabel("도서명");
+		lblNewLabel_18_1.setBounds(23, 61, 57, 15);
+		bookInfoUpdate.add(lblNewLabel_18_1);
+		
+		bookInfoUpdateTitle = new JTextField();
+		bookInfoUpdateTitle.setColumns(10);
+		bookInfoUpdateTitle.setBounds(81, 58, 116, 21);
+		bookInfoUpdate.add(bookInfoUpdateTitle);
+		
+		bookInfoUpdateISBN = new JTextField();
+		bookInfoUpdateISBN.setColumns(10);
+		bookInfoUpdateISBN.setBounds(81, 86, 116, 21);
+		bookInfoUpdate.add(bookInfoUpdateISBN);
+		
+		JLabel lblNewLabel_19_1 = new JLabel("ISBN");
+		lblNewLabel_19_1.setBounds(23, 89, 57, 15);
+		bookInfoUpdate.add(lblNewLabel_19_1);
+		
+		JButton btnNewButton_4_1 = new JButton("도서 정보 수정");
+		btnNewButton_4_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
+				String queryString;
+				
+				try {
+					queryString = "UPDATE BookInfo SET"
+								+ " BookTitle = ?, "
+								+ " BookISBN = ?"
+								+ " WHERE BookID = ?";
+					ArrayList<DataPack> datapack = new ArrayList<DataPack>();
+					datapack.add(new DataPack(1, bookInfoUpdateTitle.getText()));
+					datapack.add(new DataPack(2, bookInfoUpdateISBN.getText()));
+					datapack.add(new DataPack(3, bookInfoUpdateID.getText()));
+					
+					databaseAccessHelper.executeNonQuery(queryString, datapack);
+				} catch(Exception ex) {
+					System.out.println(ex.getMessage());
+				} finally {
+					if (databaseAccessHelper != null) {
+						databaseAccessHelper.Close();
+					}
+				}
+			}
+		});
+		btnNewButton_4_1.setBounds(23, 129, 132, 23);
+		bookInfoUpdate.add(btnNewButton_4_1);
+		
+		JPanel userInfoUpdate = new JPanel();
+		userInfoUpdate.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(userInfoUpdate);
+		userInfoUpdate.setLayout(null);
+		
+		JLabel lblNewLabel_5 = new JLabel("사용자 정보 수정");
+		lblNewLabel_5.setBounds(0, 0, 434, 15);
+		userInfoUpdate.add(lblNewLabel_5);
+		
+		JLabel lblNewLabel_17 = new JLabel("ID");
+		lblNewLabel_17.setBounds(22, 49, 57, 15);
+		userInfoUpdate.add(lblNewLabel_17);
+		
+		UserInfoUpdateID = new JTextField();
+		UserInfoUpdateID.setBounds(80, 46, 116, 21);
+		userInfoUpdate.add(UserInfoUpdateID);
+		UserInfoUpdateID.setColumns(10);
+		
+		JLabel lblNewLabel_18 = new JLabel("이름");
+		lblNewLabel_18.setBounds(22, 82, 57, 15);
+		userInfoUpdate.add(lblNewLabel_18);
+		
+		UserInfoUpdateName = new JTextField();
+		UserInfoUpdateName.setBounds(80, 79, 116, 21);
+		userInfoUpdate.add(UserInfoUpdateName);
+		UserInfoUpdateName.setColumns(10);
+		
+		JLabel lblNewLabel_19 = new JLabel("전화번호");
+		lblNewLabel_19.setBounds(22, 110, 57, 15);
+		userInfoUpdate.add(lblNewLabel_19);
+		
+		UserInfoUpdatePhoneNum = new JTextField();
+		UserInfoUpdatePhoneNum.setBounds(80, 107, 116, 21);
+		userInfoUpdate.add(UserInfoUpdatePhoneNum);
+		UserInfoUpdatePhoneNum.setColumns(10);
+		
+		JButton btnNewButton_4 = new JButton("수정");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		});
+		btnNewButton_4.setBounds(22, 150, 97, 23);
+		userInfoUpdate.add(btnNewButton_4);
+		
+		JPanel bookInfoInsert = new JPanel();
+		bookInfoInsert.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(bookInfoInsert);
+		bookInfoInsert.setLayout(null);
+		
+		JLabel lblNewLabel_1 = new JLabel("도서 정보 등록");
+		lblNewLabel_1.setBounds(0, 0, 434, 15);
+		bookInfoInsert.add(lblNewLabel_1);
+		
+		JLabel lblNewLabel_13_1 = new JLabel("ID");
+		lblNewLabel_13_1.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		lblNewLabel_13_1.setBounds(31, 28, 17, 15);
+		bookInfoInsert.add(lblNewLabel_13_1);
+		
+		bookInsertBookID = new JTextField();
+		bookInsertBookID.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		bookInsertBookID.setColumns(10);
+		bookInsertBookID.setBounds(100, 25, 116, 21);
+		bookInfoInsert.add(bookInsertBookID);
+		
+		JLabel lblNewLabel_14_1 = new JLabel("도서명");
+		lblNewLabel_14_1.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		lblNewLabel_14_1.setBounds(31, 59, 40, 15);
+		bookInfoInsert.add(lblNewLabel_14_1);
+		
+		bookInsertBookTitle = new JTextField();
+		bookInsertBookTitle.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		bookInsertBookTitle.setColumns(10);
+		bookInsertBookTitle.setBounds(100, 56, 116, 21);
+		bookInfoInsert.add(bookInsertBookTitle);
+		
+		JLabel lblNewLabel_15_1 = new JLabel("ISBN");
+		lblNewLabel_15_1.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		lblNewLabel_15_1.setBounds(31, 93, 57, 15);
+		bookInfoInsert.add(lblNewLabel_15_1);
+		
+		bookInsertBookISBN = new JTextField();
+		bookInsertBookISBN.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		bookInsertBookISBN.setColumns(10);
+		bookInsertBookISBN.setBounds(100, 87, 116, 21);
+		bookInfoInsert.add(bookInsertBookISBN);
+		
+		JButton btnNewButton_7 = new JButton("도서정보 등록");
+		btnNewButton_7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
+				String queryString;
+				
+				try {
+					queryString = "INSERT INTO BookInfo"
+								+ " ("
+								+ " BookID, "
+								+ " BookTitle,"
+								+ " BookISBN"
+								+ " )"
+								+ " VALUES"
+								+ " ("
+								+ " ?,"
+								+ " ?,"
+								+ " ?"
+								+ " );";
+					
+					ArrayList<DataPack> datapack = new ArrayList<DataPack>();
+					datapack.add(new DataPack(1, bookInsertBookID.getText()));
+					datapack.add(new DataPack(2, bookInsertBookTitle.getText()));
+					datapack.add(new DataPack(3, bookInsertBookISBN.getText()));
+					
+					databaseAccessHelper.executeNonQuery(queryString, datapack);
+				} catch(Exception ex) {
+					System.out.println(ex.getMessage());
+				} finally {
+					if (databaseAccessHelper != null) {
+						databaseAccessHelper.Close();
+					}
+				}
+			}
+		});
+		btnNewButton_7.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		btnNewButton_7.setBounds(31, 133, 130, 23);
+		bookInfoInsert.add(btnNewButton_7);
+		
+		JPanel userInfoInsert = new JPanel();
+		userInfoInsert.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(userInfoInsert);
+		userInfoInsert.setLayout(null);
+		
+		JLabel lblNewLabel_7 = new JLabel("사용자 정보 등록");
+		lblNewLabel_7.setBounds(0, 0, 434, 15);
+		userInfoInsert.add(lblNewLabel_7);
+		
+		JLabel lblNewLabel_13 = new JLabel("ID");
+		lblNewLabel_13.setBounds(27, 46, 17, 15);
+		userInfoInsert.add(lblNewLabel_13);
+		
+		UserInfoInsertID = new JTextField();
+		UserInfoInsertID.setBounds(96, 43, 116, 21);
+		userInfoInsert.add(UserInfoInsertID);
+		UserInfoInsertID.setColumns(10);
+		
+		UserInfoInsertName = new JTextField();
+		UserInfoInsertName.setBounds(96, 74, 116, 21);
+		userInfoInsert.add(UserInfoInsertName);
+		UserInfoInsertName.setColumns(10);
+		
+		JLabel lblNewLabel_14 = new JLabel("이름");
+		lblNewLabel_14.setBounds(27, 77, 40, 15);
+		userInfoInsert.add(lblNewLabel_14);
+		
+		JLabel lblNewLabel_15 = new JLabel("전화번호");
+		lblNewLabel_15.setBounds(27, 111, 57, 15);
+		userInfoInsert.add(lblNewLabel_15);
+		
+		UserInfoInsertPhoneNum = new JTextField();
+		UserInfoInsertPhoneNum.setBounds(96, 105, 116, 21);
+		userInfoInsert.add(UserInfoInsertPhoneNum);
+		UserInfoInsertPhoneNum.setColumns(10);
+		
+		JButton btnNewButton_2 = new JButton("등록");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
+				String queryString;
+				
+				try {
+					queryString = "INSERT INTO UserInfo"
+								+ " ("
+								+ " UserID, "
+								+ " UserName,"
+								+ " UserPhoneNum"
+								+ " )"
+								+ " VALUES"
+								+ " ("
+								+ " ?,"
+								+ " ?,"
+								+ " ?"
+								+ " );";
+					
+					ArrayList<DataPack> datapack = new ArrayList<DataPack>();
+					datapack.add(new DataPack(1, UserInfoInsertID.getText()));
+					datapack.add(new DataPack(2, UserInfoInsertName.getText()));
+					datapack.add(new DataPack(3, UserInfoInsertPhoneNum.getText()));
+					
+					databaseAccessHelper.executeNonQuery(queryString, datapack);
+				} catch(Exception ex) {
+					System.out.println(ex.getMessage());
+				} finally {
+					if (databaseAccessHelper != null) {
+						databaseAccessHelper.Close();
+					}
+				}
+			}
+		});
+		btnNewButton_2.setBounds(27, 152, 97, 23);
+		userInfoInsert.add(btnNewButton_2);
+		
+		JPanel bookInfoSelect = new JPanel();
+		bookInfoSelect.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(bookInfoSelect);
+		bookInfoSelect.setLayout(null);
+		
+		JScrollPane bookInfoScrollPane = new JScrollPane(bookInfoTable);
+		bookInfoScrollPane.setBounds(10,50,410,155);
+		bookInfoSelect.add(bookInfoScrollPane);
+		
+		JLabel lblNewLabel_4 = new JLabel("도서 정보 조회");
+		lblNewLabel_4.setBounds(0, 0, 434, 15);
+		bookInfoSelect.add(lblNewLabel_4);
+		
+		
+		JButton btnNewButton_5 = new JButton("조회");
+		btnNewButton_5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
+				ResultSet resultSet = null;
+				String queryString;
+				
+				try {
+					queryString = "SELECT BookID,"
+								+ " BookTitle,"
+								+ " BookISBN"
+								+ " FROM BookInfo"
+								+ " WHERE BookID = ?";
+				
+					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+					dataPack.add(new DataPack(1, BookInfoSelectField.getText()));
+					System.out.println(BookInfoSelectField.getText());
+					resultSet = databaseAccessHelper.executeQuery(queryString, dataPack);
+					userInfoTableModel.setNumRows(0);
+					while(resultSet.next()) {
+						userInfoTableModel.addRow(new Object[] {
+								resultSet.getString("BookID"),
+								resultSet.getString("BookTitle"),
+								resultSet.getString("BookISBN")
+						});
+					}
+				} catch(Exception ex) {
+					System.out.println(ex.getMessage());
+				} finally {
+					if (resultSet != null) {
+						try {
+							resultSet.close();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+					}
+					if (databaseAccessHelper != null) {
+						databaseAccessHelper.Close();
+					}
+				}
+			}
+		});
+		btnNewButton_5.setBounds(12, 215, 97, 23);
+		bookInfoSelect.add(btnNewButton_5);
+		
+		JButton btnNewButton_6 = new JButton("전체조회");
+		btnNewButton_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
+				ResultSet resultSet = null;
+				String queryString;
+				
+				try {
+					queryString = "SELECT BookID,"
+								+ " BookTitle,"
+								+ " BookISBN"
+								+ " FROM BookInfo";
+				
+					resultSet = databaseAccessHelper.executeQuery(queryString);
+					userInfoTableModel.setNumRows(0);
+					while(resultSet.next()) {
+						userInfoTableModel.addRow(new Object[] {
+								resultSet.getString("BookID"),
+								resultSet.getString("BookTitle"),
+								resultSet.getString("BookISBN")
+						});
+					}
+				} catch(Exception ex) {
+					System.out.println(ex.getMessage());
+				} finally {
+					if (resultSet != null) {
+						try {
+							resultSet.close();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+					}
+					if (databaseAccessHelper != null) {
+						databaseAccessHelper.Close();
+					}
+				}
+			}
+		});
+		btnNewButton_6.setBounds(123, 215, 97, 23);
+		bookInfoSelect.add(btnNewButton_6);
+		
+		BookInfoSelectField = new JTextField();
+		BookInfoSelectField.setBounds(29, 19, 116, 21);
+		bookInfoSelect.add(BookInfoSelectField);
+		BookInfoSelectField.setColumns(10);
+		
+		JLabel lblNewLabel_20 = new JLabel("ID");
+		lblNewLabel_20.setBounds(10, 25, 57, 15);
+		bookInfoSelect.add(lblNewLabel_20);
+		
+		JPanel userInfoDelete = new JPanel();
+		userInfoDelete.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(userInfoDelete);
+		userInfoDelete.setLayout(null);
+		
+		JLabel lblNewLabel_8 = new JLabel("사용자 정보 삭제");
+		lblNewLabel_8.setBounds(0, 0, 434, 15);
+		userInfoDelete.add(lblNewLabel_8);
+		
+		JLabel lblNewLabel_16 = new JLabel("ID");
+		lblNewLabel_16.setBounds(12, 39, 57, 15);
+		userInfoDelete.add(lblNewLabel_16);
+		
+		UserInfoDeleteID = new JTextField();
+		UserInfoDeleteID.setBounds(33, 36, 116, 21);
+		userInfoDelete.add(UserInfoDeleteID);
+		UserInfoDeleteID.setColumns(10);
+		
+		JButton btnNewButton_3 = new JButton("삭제");
+		btnNewButton_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DatabaseAccessHelper databaseAccessHelper = new DatabaseAccessHelper();
+				String queryString;
+				
+				try {
+					queryString = "DELETE"
+								+ " FROM UserInfo"
+								+ " WHERE UserId = ?";
+					
+					ArrayList<DataPack> dataPack = new ArrayList<DataPack>();
+					dataPack.add(new DataPack(1, UserInfoDeleteID.getText()));
+					
+					databaseAccessHelper.executeNonQuery(queryString, dataPack);
+				} catch (Exception ex){
+					System.out.println(ex.getMessage());
+					ex.printStackTrace();
+				} finally {
+					if (databaseAccessHelper != null) {
+						databaseAccessHelper.Close();
+					}
+				}
+			}
+		});
+		btnNewButton_3.setBounds(12, 79, 97, 23);
+		userInfoDelete.add(btnNewButton_3);
+		
+		JPanel mainPanel = new JPanel();
+		mainPanel.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(mainPanel);
+		mainPanel.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("도서 대여 관리 프로그램");
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel.setFont(new Font("맑은 고딕", Font.BOLD, 18));
+		lblNewLabel.setBounds(0, 89, 434, 32);
+		mainPanel.add(lblNewLabel);
+		
+		bookInfoTable = new JTable(bookInfoTableModel);
+		bookInfoTable.setBounds(10, 50, 410, 155);
+		
+		
+		JPanel bookInfoDelete = new JPanel();
+		bookInfoDelete.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(bookInfoDelete);
+		bookInfoDelete.setLayout(null);
+		
+		JLabel lblNewLabel_3 = new JLabel("도서 정보 삭제");
+		lblNewLabel_3.setBounds(0, 0, 434, 15);
+		bookInfoDelete.add(lblNewLabel_3);
+		
+		JPanel bookInInsert = new JPanel();
+		bookInInsert.setBounds(0, 0, 434, 238);
+		frame.getContentPane().add(bookInInsert);
+		bookInInsert.setLayout(null);
+		
+		JLabel lblNewLabel_9 = new JLabel("도서 반입 등록");
+		lblNewLabel_9.setBounds(0, 0, 434, 15);
+		bookInInsert.add(lblNewLabel_9);
+		
+		JMenuItem mntmNewMenuItem_1 = new JMenuItem("사용자 정보 등록");
+		mntmNewMenuItem_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(true);
+				userInfoUpdate.setVisible(false);
+				userInfoDelete.setVisible(false);
+				userInfoSelect.setVisible(false);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(false);
+				bookInfoUpdate.setVisible(false);
+				bookInfoDelete.setVisible(false);
+				bookInfoSelect.setVisible(false);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(false);
+				bookOutInsert.setVisible(false);
+				bookInOutSelect.setVisible(false);
+			}
+		});
+		mnNewMenu_1.add(mntmNewMenuItem_1);
+		
+		JMenuItem mntmNewMenuItem_3 = new JMenuItem("사용자 정보 조회");
+		mntmNewMenuItem_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(false);
+				userInfoUpdate.setVisible(false);
+				userInfoDelete.setVisible(false);
+				userInfoSelect.setVisible(true);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(false);
+				bookInfoUpdate.setVisible(false);
+				bookInfoDelete.setVisible(false);
+				bookInfoSelect.setVisible(false);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(false);
+				bookOutInsert.setVisible(false);
+				bookInOutSelect.setVisible(false);
+			}
+		});
+		mnNewMenu_1.add(mntmNewMenuItem_3);
+		
+		JMenuItem mntmNewMenuItem_4 = new JMenuItem("사용자 정보 삭제");
+		mntmNewMenuItem_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(false);
+				userInfoUpdate.setVisible(false);
+				userInfoDelete.setVisible(true);
+				userInfoSelect.setVisible(false);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(false);
+				bookInfoUpdate.setVisible(false);
+				bookInfoDelete.setVisible(false);
+				bookInfoSelect.setVisible(false);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(false);
+				bookOutInsert.setVisible(false);
+				bookInOutSelect.setVisible(false);
+			}
+		});
+		mnNewMenu_1.add(mntmNewMenuItem_4);
+		
+		JMenuItem mntmNewMenuItem_2 = new JMenuItem("사용자 정보 수정");
+		mntmNewMenuItem_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(false);
+				userInfoUpdate.setVisible(true);
+				userInfoDelete.setVisible(false);
+				userInfoSelect.setVisible(false);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(false);
+				bookInfoUpdate.setVisible(false);
+				bookInfoDelete.setVisible(false);
+				bookInfoSelect.setVisible(false);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(false);
+				bookOutInsert.setVisible(false);
+				bookInOutSelect.setVisible(false);
+			}
+		});
+		mnNewMenu_1.add(mntmNewMenuItem_2);
+		
+		JMenu mnNewMenu_2 = new JMenu("도서 정보 관리");
+		menuBar.add(mnNewMenu_2);
+		
+		JMenuItem mntmNewMenuItem_5 = new JMenuItem("도서 정보 등록");
+		mntmNewMenuItem_5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(false);
+				userInfoUpdate.setVisible(false);
+				userInfoDelete.setVisible(false);
+				userInfoSelect.setVisible(false);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(true);
+				bookInfoUpdate.setVisible(false);
+				bookInfoDelete.setVisible(false);
+				bookInfoSelect.setVisible(false);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(false);
+				bookOutInsert.setVisible(false);
+				bookInOutSelect.setVisible(false);
+			}
+		});
+		mnNewMenu_2.add(mntmNewMenuItem_5);
+		
+		JMenuItem mntmNewMenuItem_6 = new JMenuItem("도서 정보 조회");
+		mntmNewMenuItem_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(false);
+				userInfoUpdate.setVisible(false);
+				userInfoDelete.setVisible(false);
+				userInfoSelect.setVisible(false);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(false);
+				bookInfoUpdate.setVisible(false);
+				bookInfoDelete.setVisible(false);
+				bookInfoSelect.setVisible(true);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(false);
+				bookOutInsert.setVisible(false);
+				bookInOutSelect.setVisible(false);
+			}
+		});
+		mnNewMenu_2.add(mntmNewMenuItem_6);
+		
+		JMenuItem mntmNewMenuItem_7 = new JMenuItem("도서 정보 삭제");
+
+		mntmNewMenuItem_7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(false);
+				userInfoUpdate.setVisible(false);
+				userInfoDelete.setVisible(false);
+				userInfoSelect.setVisible(false);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(false);
+				bookInfoUpdate.setVisible(false);
+				bookInfoDelete.setVisible(true);
+				bookInfoSelect.setVisible(false);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(false);
+				bookOutInsert.setVisible(false);
+				bookInOutSelect.setVisible(false);
+			}
+		});
+		mnNewMenu_2.add(mntmNewMenuItem_7);
+		
+		JMenuItem mntmNewMenuItem_8 = new JMenuItem("도서 정보 수정");
+		mntmNewMenuItem_8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(false);
+				userInfoUpdate.setVisible(false);
+				userInfoDelete.setVisible(false);
+				userInfoSelect.setVisible(false);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(false);
+				bookInfoUpdate.setVisible(true);
+				bookInfoDelete.setVisible(false);
+				bookInfoSelect.setVisible(false);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(false);
+				bookOutInsert.setVisible(false);
+				bookInOutSelect.setVisible(false);
+			}
+		});
+
+		mnNewMenu_2.add(mntmNewMenuItem_8);
+		
+		JMenu mnNewMenu_3 = new JMenu("도서 대여 관리");
+
+		menuBar.add(mnNewMenu_3);
+		
+		JMenuItem mntmNewMenuItem_9 = new JMenuItem("도서 반출 등록");
+		mntmNewMenuItem_9.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(true);
+				userInfoUpdate.setVisible(false);
+				userInfoDelete.setVisible(false);
+				userInfoSelect.setVisible(false);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(false);
+				bookInfoUpdate.setVisible(false);
+				bookInfoDelete.setVisible(false);
+				bookInfoSelect.setVisible(false);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(false);
+				bookOutInsert.setVisible(true);
+				bookInOutSelect.setVisible(false);
+			}
+		});
+		mnNewMenu_3.add(mntmNewMenuItem_9);
+		
+		JMenuItem mntmNewMenuItem_10 = new JMenuItem("도서 반입 등록");
+		mntmNewMenuItem_10.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(false);
+				userInfoUpdate.setVisible(false);
+				userInfoDelete.setVisible(false);
+				userInfoSelect.setVisible(false);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(false);
+				bookInfoUpdate.setVisible(false);
+				bookInfoDelete.setVisible(false);
+				bookInfoSelect.setVisible(false);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(true);
+				bookOutInsert.setVisible(false);
+				bookInOutSelect.setVisible(false);
+			}
+		});
+
+		mnNewMenu_3.add(mntmNewMenuItem_10);
+		
+		JMenuItem mntmNewMenuItem_11 = new JMenuItem("도서 대여 조회");
+		mntmNewMenuItem_11.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainPanel.setVisible(false);
+				//사용자 정보 관리 패널 세팅
+				userInfoInsert.setVisible(false);
+				userInfoUpdate.setVisible(false);
+				userInfoDelete.setVisible(false);
+				userInfoSelect.setVisible(false);
+				//도서 정보 관리 관리 패널 세팅
+				bookInfoInsert.setVisible(false);
+				bookInfoUpdate.setVisible(false);
+				bookInfoDelete.setVisible(false);
+				bookInfoSelect.setVisible(false);
+				//도서 대여 관리 패널 세팅
+				bookInInsert.setVisible(false);
+				bookOutInsert.setVisible(false);
+				bookInOutSelect.setVisible(true);
+			}
+		});
+		mnNewMenu_3.add(mntmNewMenuItem_11);
+		
+
+		
+		JMenu mnNewMenu_4 = new JMenu("도움말");
+		menuBar.add(mnNewMenu_4);
+	}
+}
